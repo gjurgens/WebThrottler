@@ -1,4 +1,10 @@
 <?PHP
+/*
+ * Downloaded from http://www.php.net/manual/es/function.curl-setopt.php#102121
+ * commited by zsalab
+ * 
+ * This is for handle 301 and 302 redirects
+ */
 function curl_exec_follow(/*resource*/$ch, /*int*/&$maxredirect = null) {
 	$mr = $maxredirect === null ? 5 : intval($maxredirect);
 	if (ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off')) {
@@ -11,6 +17,7 @@ function curl_exec_follow(/*resource*/$ch, /*int*/&$maxredirect = null) {
 
 			$rch = curl_copy_handle($ch);
 			curl_setopt($rch, CURLOPT_HEADER, true);
+			//Added this header for later use on RewriteCond appache rules
 			curl_setopt($rch, CURLOPT_HTTPHEADER, array('WT-issued: true'));
 			curl_setopt($rch, CURLOPT_NOBODY, true);
 			curl_setopt($rch, CURLOPT_FORBID_REUSE, false);
@@ -45,6 +52,9 @@ function curl_exec_follow(/*resource*/$ch, /*int*/&$maxredirect = null) {
 	return curl_exec($ch);
 }
 
+/*
+ * Main handler
+ */
 function proxy($url, $rate, $wait, $gzip, $sendCookies, $userAgent, $getAllHeaders) {
 
 	global $HEADER_WHITE_LIST, $HEADER_BLACK_LIST, $BUFFER_CHUNK_SIZE, $DEFAULT_RATE;
@@ -188,6 +198,9 @@ function proxy($url, $rate, $wait, $gzip, $sendCookies, $userAgent, $getAllHeade
 	}
 }
 
+/*
+ * Handles very simple pseudo REST patterns
+ */
 function restHandler() {
 	$requestUrl = $_SERVER["REQUEST_URI"];
 	$handlerUrl = $_SERVER["PHP_SELF"];
@@ -244,7 +257,9 @@ function restHandler() {
 
 	return 	$aParams;
 }
-
+/*
+ * Configuration params
+ */
 $HEADER_WHITE_LIST = array("Content-Type", "Content-Language", "Set-Cookie");
 $HEADER_BLACK_LIST = array("Transfer-Encoding", "Content-Encoding","Content-Length");
 $BUFFER_CHUNK_SIZE = 4096;
