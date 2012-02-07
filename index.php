@@ -202,6 +202,7 @@ function proxy($url, $rate, $wait, $gzip, $sendCookies, $userAgent, $getAllHeade
  * Handles very simple pseudo REST patterns
  */
 function restHandler() {
+	global $DEFAULT_RATE;
 	$requestUrl = $_SERVER["REQUEST_URI"];
 	$handlerUrl = $_SERVER["PHP_SELF"];
 	$aRequestUrl = split("/",$requestUrl);
