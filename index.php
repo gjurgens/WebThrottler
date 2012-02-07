@@ -5,6 +5,7 @@
  * 
  * This is for handle 301 and 302 redirects
  */
+
 function curl_exec_follow(/*resource*/$ch, /*int*/&$maxredirect = null) {
 	$mr = $maxredirect === null ? 5 : intval($maxredirect);
 	if (ini_get('open_basedir') == '' && ini_get('safe_mode' == 'Off')) {
