@@ -1,7 +1,7 @@
 #WEBTHROTTLE
-RewriteRule .* - [E=WT_RATE:50]
+RewriteRule .* - [E=WT_RATE:]
 RewriteRule .* - [E=WT_WAIT:]
-RewriteRule .* - [E=WT_GZIP:false]
+RewriteRule .* - [E=WT_GZIP:]
 RewriteRule .* - [E=WT_USER_AGENT:]
 RewriteRule .* - [E=WT_GET_ALL_HEADERS:]
 RewriteRule .* - [E=WT_SEND_COOKIES:]
@@ -9,6 +9,6 @@ RewriteRule .* - [E=WT_SEND_COOKIES:]
 RewriteCond %{HTTP:WT-issued} ^true$
 RewriteRule .? - [S=2]
 RewriteRule . - [E=no-gzip:1]
-RewriteRule ^(/.*)                               %{ENV:SVR_WEBTHROTTLE}%{ENV:WT_RATE}/%{ENV:WT_WAIT}/%{ENV:WT_GZIP}/%{ENV:WT_USER_AGENT}/http://%{SERVER_NAME}$1 [NC,P,L]
+RewriteRule ^(/.*) %{ENV:SVR_WEBTHROTTLE}%{ENV:WT_RATE}/%{ENV:WT_WAIT}/%{ENV:WT_GZIP}/%{ENV:WT_USER_AGENT}/http://%{SERVER_NAME}$1 [NC,P,L]
 
 
