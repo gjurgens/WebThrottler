@@ -56,7 +56,7 @@ function curl_exec_follow(/*resource*/$ch, /*int*/&$maxredirect = null) {
 /*
  * Main handler
  */
-function proxy($url, $rate, $wait, $gzip, $sendCookies, $userAgent, $getAllHeaders) {
+function proxy($url, $rate, $wait, $gzip, $sendCookies, $userAgent, $getAllHeaders, $replaceString) {
 
 	global $HEADER_WHITE_LIST, $HEADER_BLACK_LIST, $BUFFER_CHUNK_SIZE, $DEFAULT_RATE;
 	
@@ -139,7 +139,26 @@ function proxy($url, $rate, $wait, $gzip, $sendCookies, $userAgent, $getAllHeade
 			
 		curl_close($ch);
 		
-		
+		//Replace strings
+		if($replaceString) {
+			$aReplacePatterns = array();
+			$aReplaceValues   = array();
+
+			$aTmpReplaceString = explode("$", $replaceString);
+
+			foreach ($aTmpReplaceString as $replacePair) {
+				$aReplacePair = explode("=", $replacePair);
+				if(count($aReplacePair) == 2) {
+					array_push($aReplacePatterns, $aReplacePair[0]);
+					array_push($aReplaceValues, $aReplacePair[1]);
+				}
+			}
+			
+			if(count($aReplacePatterns) > 0) {
+				$contents = str_replace($aReplacePatterns, $aReplaceValues, $contents);
+			}
+		}
+
 		
 		$header_text = preg_split('/[\r\n]+/', $header);
 		
@@ -215,7 +234,7 @@ function restHandler() {
 	$aUrl =array();
 	$inUrl = false;
 	for($i = 0; $i < count($aRequestUrl); $i++) {
-		if(strtolower($aRequestUrl[$i]) == "http:") $inUrl = true;
+		if(strtolower($aRequestUrl[$i]) == "http:" || strtolower($aRequestUrl[$i]) == "https:") $inUrl = true;
 		if(!$inUrl) {
 			array_push($aUnamedParams, $aRequestUrl[$i]);
 		} else {
@@ -234,7 +253,8 @@ function restHandler() {
 		"gzip",
 		"userAgent",
 		"getAllHeaders",
-		"sendCookies"
+		"sendCookies",
+		"replaceString"
 	);
 	
 	if(count($aUnamedParams) > count($aParamNames)) {
@@ -247,6 +267,7 @@ function restHandler() {
 	if(count($aUnamedParams) > 0) {
 		$aParams = array_combine($aParamNames, $aUnamedParams);
 	}
+	
 	$aParams["url"] = implode("/", $aUrl);
 	
 	$aParams['url'] = !empty($aParams['url']) ? $aParams['url'] : false;
@@ -256,6 +277,7 @@ function restHandler() {
 	$aParams['wait'] = !empty($aParams['wait']) ? intval($aParams['wait']) : 0;
 	$aParams['rate'] = !empty($aParams['rate']) ? intval($aParams['rate']) : $DEFAULT_RATE;
 	$aParams['gzip'] = !empty($aParams['gzip']) ? strtolower($aParams['gzip']) : "default"; 
+	$aParams['replaceString'] = !empty($aParams['replaceString']) ? $aParams['replaceString'] : "false"; 
 
 	return 	$aParams;
 }
@@ -269,6 +291,6 @@ $DEFAULT_RATE = 100000;
 
 $aParams = restHandler();
 
-proxy($aParams['url'], $aParams['rate'], $aParams['wait'], $aParams['gzip'], $aParams['sendCookies'], $aParams['userAgent'], $aParams['getAllHeaders']);
+proxy($aParams['url'], $aParams['rate'], $aParams['wait'], $aParams['gzip'], $aParams['sendCookies'], $aParams['userAgent'], $aParams['getAllHeaders'], $aParams['replaceString']);
 
 ?>
